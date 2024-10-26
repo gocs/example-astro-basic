@@ -1,0 +1,56 @@
+---
+if (Astro.locals.user !== null) {
+	if (Astro.locals.user.emailVerified) {
+		return Astro.redirect("/verify-email");
+	}
+	return Astro.redirect("/update-email");
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Faroe and Astro basic example</title>
+	</head>
+	<body>
+		<h1>Sign in</h1>
+		<form id="login-form">
+			<label for="login-form.email">Email</label>
+			<input type="email" id="login-form.email" name="email" /><br />
+			<label for="login-form.password">Password</label>
+			<input type="password" id="login-form.password" name="password" /><br />
+			<button>Continue</button>
+			<p id="login-form.message"></p>
+		</form>
+		<a href="/signup">Create an account</a>
+		<a href="/forgot-password">Forgot password?</a>
+	</body>
+</html>
+
+<script>
+	const loginForm = document.getElementById("login-form") as HTMLFormElement;
+	const loginFormMessageElement = document.getElementById("login-form.message") as HTMLParagraphElement;
+
+	loginForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		const email = formData.get("email");
+		const password = formData.get("password");
+		const body = JSON.stringify({
+			email: email,
+			password: password
+		});
+		const response = await fetch("/api/login", {
+			method: "POST",
+			body
+		});
+		if (response.ok) {
+			window.location.href = "/";
+			return;
+		}
+		loginFormMessageElement.innerText = await response.text();
+	});
+</script>

@@ -1,0 +1,96 @@
+---
+import { faroe } from "@lib/faroe";
+import { FaroeError } from "@lib/sdk";
+
+if (Astro.locals.user === null) {
+	return Astro.redirect("/login");
+}
+if (Astro.locals.user.emailVerified) {
+	return Astro.redirect("/");
+}
+
+let ratelimited = false;
+let verificationRequest = await faroe.getUserEmailVerificationRequest(Astro.locals.user.faroeId);
+if (verificationRequest === null) {
+	try {
+		verificationRequest = await faroe.createUserEmailVerificationRequest(Astro.locals.user.faroeId);
+		console.log(`To ${Astro.locals.user.email}: Your code is ${verificationRequest.code}`);
+	} catch (e) {
+		if (!(e instanceof FaroeError) || e.code !== "TOO_MANY_REQUESTS") {
+			throw e;
+		}
+		ratelimited = true;
+	}
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Faroe and Astro basic example</title>
+	</head>
+	<body>
+		<h1>Verify your email address</h1>
+		{
+			ratelimited ? (
+				<p>Please try again later.</p>
+			) : (
+				<>
+					<p>A verification code was sent to {Astro.locals.user.email}</p>
+					<form id="verify-form">
+						<label for="verify-form.email">Code</label>
+						<input id="verify-form.email" name="code" />
+						<br />
+						<button>Verify</button>
+						<p id="verify-form.message" />
+					</form>
+					<form id="resend-form">
+						<button>Resend email</button>
+						<p id="resend-form.message" />
+					</form>
+				</>
+			)
+		}
+	</body>
+</html>
+
+<script>
+	const verifyForm = document.getElementById("verify-form") as HTMLFormElement;
+	const verifyFormMessageElement = document.getElementById("verify-form.message") as HTMLParagraphElement;
+
+	const resendForm = document.getElementById("resend-form") as HTMLFormElement;
+	const resendFormMessageElement = document.getElementById("resend-form.message") as HTMLParagraphElement;
+
+	verifyForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		const code = formData.get("code");
+		const body = JSON.stringify({
+			code: code
+		});
+		const response = await fetch("/api/verify-email", {
+			method: "POST",
+			body
+		});
+		if (response.ok) {
+			window.location.href = "/";
+		} else {
+			verifyFormMessageElement.innerText = await response.text();
+		}
+	});
+
+	resendForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const response = await fetch("/api/send-email-verification-code", {
+			method: "POST"
+		});
+		if (response.ok) {
+			resendFormMessageElement.innerText = "A new code was to sent your inbox.";
+		} else {
+			resendFormMessageElement.innerText = await response.text();
+		}
+	});
+</script>

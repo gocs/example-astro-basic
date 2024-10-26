@@ -1,0 +1,59 @@
+---
+if (Astro.locals.user !== null) {
+	if (Astro.locals.user.emailVerified) {
+		return Astro.redirect("/verify-email");
+	}
+	return Astro.redirect("/update-email");
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Faroe and Astro basic example</title>
+	</head>
+	<body>
+		<h1>Create an account</h1>
+		<form id="signup-form">
+			<label for="signup-form.username">Username</label>
+			<input id="signup-form.username" name="username" /><br />
+			<label for="signup-form.email">Email</label>
+			<input type="email" id="signup-form.email" name="email" /><br />
+			<label for="signup-form.password">Password</label>
+			<input type="password" id="signup-form.password" name="password" /><br />
+			<button>Continue</button>
+			<p id="signup-form.message"></p>
+		</form>
+		<a href="/login">Sign in</a>
+	</body>
+</html>
+
+<script>
+	const signupForm = document.getElementById("signup-form") as HTMLFormElement;
+	const signupFormMessageElement = document.getElementById("signup-form.message") as HTMLParagraphElement;
+
+	signupForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		const username = formData.get("username");
+		const email = formData.get("email");
+		const password = formData.get("password");
+		const body = JSON.stringify({
+			username: username,
+			email: email,
+			password: password
+		});
+		const response = await fetch("/api/signup", {
+			method: "POST",
+			body
+		});
+		if (response.ok) {
+			window.location.href = "/verify-email";
+			return;
+		}
+		signupFormMessageElement.innerText = await response.text();
+	});
+</script>

@@ -1,0 +1,60 @@
+---
+import { faroe } from "@lib/faroe";
+import { deletePasswordResetSessionTokenCookie } from "@lib/password-reset-session";
+
+if (Astro.locals.session === null) {
+	return Astro.redirect("/login");
+}
+if (Astro.locals.session.faroeEmailUpdateRequestId === null) {
+	return Astro.redirect("/");
+}
+
+const updateRequest = await faroe.getEmailUpdateRequest(Astro.locals.session.faroeEmailUpdateRequestId);
+if (updateRequest === null) {
+	deletePasswordResetSessionTokenCookie(Astro);
+	return Astro.redirect("/");
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Faroe and Astro basic example</title>
+	</head>
+	<body>
+        <h1>Verify your new email address</h1>
+		<p>A verification code was sent to {updateRequest.email}</p>
+		<form id="verify-form">
+			<label for="verify-form.email">Code</label>
+			<input id="verify-form.email" name="code" /><br />
+			<button>Verify</button>
+			<p id="verify-form.message"></p>
+		</form>
+	</body>
+</html>
+
+<script>
+	const verifyForm = document.getElementById("verify-form") as HTMLFormElement;
+	const verifyFormMessageElement = document.getElementById("verify-form.message") as HTMLParagraphElement;
+
+	verifyForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		const code = formData.get("code");
+		const body = JSON.stringify({
+			code: code
+		});
+		const response = await fetch("/api/update-email", {
+			method: "POST",
+			body
+		});
+		if (response.ok) {
+			window.location.href = "/";
+		} else {
+			verifyFormMessageElement.innerText = await response.text();
+		}
+	});
+</script>

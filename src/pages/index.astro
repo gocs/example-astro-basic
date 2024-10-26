@@ -1,5 +1,10 @@
 ---
-
+if (Astro.locals.user === null) {
+	return Astro.redirect("/login");
+}
+if (!Astro.locals.user.emailVerified) {
+	return Astro.redirect("/verify-email");
+}
 ---
 
 <html lang="en">
@@ -8,9 +13,30 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Faroe and Astro basic example</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<h1>Hi, {Astro.locals.user.username}!</h1>
+		<p>
+			Your email is {Astro.locals.user.email}
+		</p>
+		<a href="/settings">Settings</a>
+		<form id="logout-form">
+			<button>Sign out</button>
+		</form>
 	</body>
 </html>
+
+<script>
+	const logoutForm = document.getElementById("logout-form") as HTMLFormElement;
+
+	logoutForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const response = await fetch("/api/logout", {
+			method: "POST"
+		});
+		if (response.ok) {
+			window.location.href = "/login";
+		}
+	});
+</script>

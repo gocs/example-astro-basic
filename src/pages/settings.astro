@@ -1,0 +1,89 @@
+---
+if (Astro.locals.user === null) {
+	return Astro.redirect("/login");
+}
+if (!Astro.locals.user.emailVerified) {
+	return Astro.redirect("/verify-email");
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Faroe and Astro basic example</title>
+	</head>
+	<body>
+		<h1>Settings</h1>
+		<section>
+			<h2>Update email</h2>
+			<form id="update-email-form">
+				<label for="update-email-form.email">Email address</label>
+				<input type="email" id="update-email-form.email" name="email" /><br />
+				<button>Send verification email</button>
+				<p id="update-email-form.message"></p>
+			</form>
+		</section>
+		<section>
+			<h2>Update password</h2>
+			<form id="update-password-form">
+				<label for="update-password-form.password">Current password</label>
+				<input type="password" id="update-password-form.password" name="password" /><br />
+				<label for="update-password-form.new-password">New password</label>
+				<input type="password" id="update-password-form.new-password" name="new_password" /><br />
+				<button>Update</button>
+				<p id="update-password-form.message"></p>
+			</form>
+		</section>
+	</body>
+</html>
+
+<script>
+	const updateEmailForm = document.getElementById("update-email-form") as HTMLFormElement;
+	const updateEmailFormMessageElement = document.getElementById("update-email-form.message") as HTMLParagraphElement;
+
+	updateEmailForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		const email = formData.get("email");
+		const body = JSON.stringify({
+			email: email
+		});
+		const response = await fetch("/api/send-email-update-code", {
+			method: "POST",
+			body
+		});
+		if (response.ok) {
+			window.location.href = "/update-email";
+		} else {
+			updateEmailFormMessageElement.innerText = await response.text();
+		}
+	});
+
+	const updatePasswordForm = document.getElementById("update-password-form") as HTMLFormElement;
+	const updatePasswordFormMessageElement = document.getElementById(
+		"update-password-form.message"
+	) as HTMLParagraphElement;
+
+	updatePasswordForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		const password = formData.get("password");
+		const newPassword = formData.get("new_password");
+		const body = JSON.stringify({
+			password: password,
+			new_password: newPassword
+		});
+		const response = await fetch("/api/update-password", {
+			method: "POST",
+			body
+		});
+		if (response.ok) {
+			updatePasswordFormMessageElement.innerText = "Your password was updated.";
+		} else {
+			updatePasswordFormMessageElement.innerText = await response.text();
+		}
+	});
+</script>
