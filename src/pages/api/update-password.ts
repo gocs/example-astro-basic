@@ -1,5 +1,5 @@
 import { ObjectParser } from "@pilcrowjs/object-parser";
-import { verifyPasswordInput, FaroeError } from "@lib/sdk";
+import { verifyPasswordInput, FaroeError } from "@faroe/sdk";
 import { faroe } from "@lib/faroe";
 import { createSession, generateSessionToken, invalidateUserSessions, setSessionTokenCookie } from "@lib/session";
 

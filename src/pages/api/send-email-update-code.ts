@@ -1,10 +1,10 @@
-import { verifyEmailInput, FaroeError } from "@lib/sdk";
+import { verifyEmailInput, FaroeError } from "@faroe/sdk";
 import { ObjectParser } from "@pilcrowjs/object-parser";
 import { faroe } from "@lib/faroe";
 import { setSessionFaroeEmailUpdateRequestId } from "@lib/session";
 
 import type { APIContext } from "astro";
-import type { FaroeEmailUpdateRequest } from "@lib/sdk";
+import type { FaroeEmailUpdateRequest } from "@faroe/sdk";
 
 export async function POST(context: APIContext): Promise<Response> {
 	if (context.locals.session === null || context.locals.user === null) {

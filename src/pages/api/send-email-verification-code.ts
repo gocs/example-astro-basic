@@ -1,8 +1,8 @@
-import { FaroeError } from "@lib/sdk";
+import { FaroeError } from "@faroe/sdk";
 import { faroe } from "@lib/faroe";
 
 import type { APIContext } from "astro";
-import type { FaroeUserEmailVerificationRequest } from "@lib/sdk";
+import type { FaroeUserEmailVerificationRequest } from "@faroe/sdk";
 
 export async function POST(context: APIContext): Promise<Response> {
 	if (context.locals.session === null || context.locals.user === null) {

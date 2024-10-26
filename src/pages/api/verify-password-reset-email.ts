@@ -1,6 +1,6 @@
 import { faroe } from "@lib/faroe";
 import { ObjectParser } from "@pilcrowjs/object-parser";
-import { FaroeError } from "@lib/sdk";
+import { FaroeError } from "@faroe/sdk";
 import {
 	deletePasswordResetSessionTokenCookie,
 	invalidatePasswordResetSession,

@@ -1,11 +1,11 @@
 import { ObjectParser } from "@pilcrowjs/object-parser";
-import { verifyEmailInput, verifyPasswordInput, FaroeError } from "@lib/sdk";
+import { verifyEmailInput, verifyPasswordInput, FaroeError } from "@faroe/sdk";
 import { faroe } from "@lib/faroe";
 import { createUser } from "@lib/user";
 import { createSession, generateSessionToken, setSessionTokenCookie } from "@lib/session";
 
 import type { APIContext } from "astro";
-import type { FaroeUser } from "../../../lib/sdk";
+import type { FaroeUser } from "@faroe/sdk";
 import type { User } from "@lib/user";
 
 export async function POST(context: APIContext): Promise<Response> {

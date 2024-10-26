@@ -13,6 +13,9 @@ importers:
       "@astrojs/node":
         specifier: ^8.3.4
         version: 8.3.4(astro@4.16.4(@types/node@22.7.5)(rollup@4.24.0)(typescript@5.6.3))
+      "@faroe/sdk":
+        specifier: ^0.1.0
+        version: 0.1.0
       "@oslojs/crypto":
         specifier: ^1.0.1
         version: 1.0.1
@@ -407,6 +410,10 @@ packages:
     engines: { node: ">=12" }
     cpu: [x64]
     os: [win32]
+
+  "@faroe/sdk@0.1.0":
+    resolution:
+      { integrity: sha512-7Jdkj1ZrNdnii0rDsaRVhwBBB3aGkgiCy1AkgGBy4uZ27ESbmUZsjxuo/x+U0uF4ohsvdOp7hyByHv1FeS+yWg== }
 
   "@img/sharp-darwin-arm64@0.33.5":
     resolution:
@@ -2953,6 +2960,10 @@ snapshots:
 
   "@esbuild/win32-x64@0.21.5":
     optional: true
+
+  "@faroe/sdk@0.1.0":
+    dependencies:
+      "@oslojs/encoding": 1.1.0
 
   "@img/sharp-darwin-arm64@0.33.5":
     optionalDependencies:

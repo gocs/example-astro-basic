@@ -1,4 +1,4 @@
-import { verifyEmailInput, FaroeError } from "@lib/sdk";
+import { verifyEmailInput, FaroeError } from "@faroe/sdk";
 import { ObjectParser } from "@pilcrowjs/object-parser";
 import { faroe } from "@lib/faroe";
 import { createPasswordResetSession, setPasswordResetSessionTokenCookie } from "@lib/password-reset-session";
@@ -6,7 +6,7 @@ import { generateSessionToken } from "@lib/session";
 import { getUserFromFaroeId } from "@lib/user";
 
 import type { APIContext } from "astro";
-import type { FaroePasswordResetRequest } from "@lib/sdk";
+import type { FaroePasswordResetRequest } from "@faroe/sdk";
 
 export async function POST(context: APIContext): Promise<Response> {
 	const data = await context.request.json();
