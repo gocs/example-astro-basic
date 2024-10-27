@@ -36,7 +36,7 @@ export async function POST(context: APIContext): Promise<Response> {
 
 	let updatedEmail: string;
 	try {
-		updatedEmail = await faroe.updateUserEmail(context.locals.session.faroeEmailUpdateRequestId, code);
+		updatedEmail = await faroe.verifyNewUserEmail(context.locals.session.faroeEmailUpdateRequestId, code);
 	} catch (e) {
 		if (e instanceof FaroeError && e.code === "INVALID_REQUEST_ID") {
 			return new Response("Please restart the process.", {

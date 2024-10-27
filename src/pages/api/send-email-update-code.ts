@@ -2,6 +2,7 @@ import { verifyEmailInput, FaroeError } from "@faroe/sdk";
 import { ObjectParser } from "@pilcrowjs/object-parser";
 import { faroe } from "@lib/faroe";
 import { setSessionFaroeEmailUpdateRequestId } from "@lib/session";
+import { getUserFromEmail } from "@lib/user";
 
 import type { APIContext } from "astro";
 import type { FaroeEmailUpdateRequest } from "@faroe/sdk";
@@ -32,15 +33,17 @@ export async function POST(context: APIContext): Promise<Response> {
 		});
 	}
 
+	const existingUser = getUserFromEmail(email);
+	if (existingUser !== null) {
+		return new Response("This email address is already used.", {
+			status: 400
+		});
+	}
+
 	let updateRequest: FaroeEmailUpdateRequest;
 	try {
 		updateRequest = await faroe.createUserEmailUpdateRequest(context.locals.user.faroeId, email);
 	} catch (e) {
-		if (e instanceof FaroeError && e.code === "EMAIL_ALREADY_USED") {
-			return new Response("This email address is already used.", {
-				status: 400
-			});
-		}
 		if (e instanceof FaroeError && e.code === "TOO_MANY_REQUESTS") {
 			return new Response("Please try again later.", {
 				status: 429

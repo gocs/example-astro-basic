@@ -1,7 +1,7 @@
 import { ObjectParser } from "@pilcrowjs/object-parser";
 import { verifyEmailInput, verifyPasswordInput, FaroeError } from "@faroe/sdk";
 import { faroe } from "@lib/faroe";
-import { createUser } from "@lib/user";
+import { createUser, getUserFromEmail } from "@lib/user";
 import { createSession, generateSessionToken, setSessionTokenCookie } from "@lib/session";
 
 import type { APIContext } from "astro";
@@ -35,6 +35,14 @@ export async function POST(context: APIContext): Promise<Response> {
 			status: 400
 		});
 	}
+
+	const existingUser = getUserFromEmail(email);
+	if (existingUser !== null) {
+		return new Response("Email is already used.", {
+			status: 400
+		});
+	}
+
 	if (!verifyPasswordInput(password)) {
 		return new Response("Please enter a valid password.", {
 			status: 400
@@ -43,13 +51,8 @@ export async function POST(context: APIContext): Promise<Response> {
 
 	let faroeUser: FaroeUser;
 	try {
-		faroeUser = await faroe.createUser(email, password, "0.0.0.0");
+		faroeUser = await faroe.createUser(password, "0.0.0.0");
 	} catch (e) {
-		if (e instanceof FaroeError && e.code === "EMAIL_ALREADY_USED") {
-			return new Response("Email is already used.", {
-				status: 400
-			});
-		}
 		if (e instanceof FaroeError && e.code === "WEAK_PASSWORD") {
 			return new Response("Please use a stronger password.", {
 				status: 400

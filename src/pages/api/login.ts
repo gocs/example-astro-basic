@@ -1,11 +1,10 @@
 import { ObjectParser } from "@pilcrowjs/object-parser";
 import { verifyEmailInput, verifyPasswordInput, FaroeError } from "@faroe/sdk";
 import { faroe } from "@lib/faroe";
-import { getUserFromFaroeId } from "@lib/user";
+import { getUserFromEmail } from "@lib/user";
 import { createSession, generateSessionToken, setSessionTokenCookie } from "@lib/session";
 
 import type { APIContext } from "astro";
-import type { FaroeUser } from "@faroe/sdk";
 
 export async function POST(context: APIContext): Promise<Response> {
 	const data: unknown = await context.request.json();
@@ -21,6 +20,7 @@ export async function POST(context: APIContext): Promise<Response> {
 			status: 400
 		});
 	}
+	email = email.toLowerCase();
 
 	if (!verifyEmailInput(email)) {
 		return new Response("Please enter a valid email address.", {
@@ -33,15 +33,16 @@ export async function POST(context: APIContext): Promise<Response> {
 		});
 	}
 
-	let faroeUser: FaroeUser;
+	const user = getUserFromEmail(email);
+	if (user === null) {
+		return new Response("Account does not exist.", {
+			status: 400
+		});
+	}
+
 	try {
-		faroeUser = await faroe.authenticateWithPassword(email, password, "0.0.0.0");
+		await faroe.verifyUserPassword(user.faroeId, password, "0.0.0.0");
 	} catch (e) {
-		if (e instanceof FaroeError && e.code === "USER_NOT_EXISTS") {
-			return new Response("Account does not exist.", {
-				status: 400
-			});
-		}
 		if (e instanceof FaroeError && e.code === "INCORRECT_PASSWORD") {
 			return new Response("Incorrect password.", {
 				status: 400
@@ -55,14 +56,6 @@ export async function POST(context: APIContext): Promise<Response> {
 		console.log(e);
 		return new Response("An unknown error occurred. Please try again later.", {
 			status: 500
-		});
-	}
-
-	const user = getUserFromFaroeId(faroeUser.id);
-	if (user === null) {
-		await faroe.deleteUser(faroeUser.id);
-		return new Response("Account does not exist.", {
-			status: 400
 		});
 	}
 

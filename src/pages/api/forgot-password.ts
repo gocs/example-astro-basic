@@ -3,7 +3,7 @@ import { ObjectParser } from "@pilcrowjs/object-parser";
 import { faroe } from "@lib/faroe";
 import { createPasswordResetSession, setPasswordResetSessionTokenCookie } from "@lib/password-reset-session";
 import { generateSessionToken } from "@lib/session";
-import { getUserFromFaroeId } from "@lib/user";
+import { getUserFromEmail } from "@lib/user";
 
 import type { APIContext } from "astro";
 import type { FaroePasswordResetRequest } from "@faroe/sdk";
@@ -25,10 +25,17 @@ export async function POST(context: APIContext): Promise<Response> {
 		return new Response("Please enter a valid email address.");
 	}
 
+	const user = getUserFromEmail(email);
+	if (user === null) {
+		return new Response("Account does not exist.", {
+			status: 400
+		});
+	}
+
 	let resetRequest: FaroePasswordResetRequest;
 	let verificationCode: string;
 	try {
-		[resetRequest, verificationCode] = await faroe.createPasswordResetRequest(email, "0.0.0.0");
+		[resetRequest, verificationCode] = await faroe.createUserPasswordResetRequest(user.faroeId, "0.0.0.0");
 	} catch (e) {
 		if (e instanceof FaroeError && e.code === "USER_NOT_EXISTS") {
 			return new Response("Account does not exist.", {
@@ -42,14 +49,6 @@ export async function POST(context: APIContext): Promise<Response> {
 		}
 		return new Response("An unknown error occurred. Please try again later.", {
 			status: 500
-		});
-	}
-
-	const user = getUserFromFaroeId(resetRequest.userId);
-	if (user === null) {
-		await faroe.deleteUser(resetRequest.userId);
-		return new Response("Account does not exist.", {
-			status: 400
 		});
 	}
 
