@@ -2,8 +2,11 @@
 import { faroe } from "@lib/faroe";
 import { deletePasswordResetSessionTokenCookie } from "@lib/password-reset-session";
 
-if (Astro.locals.session === null) {
+if (Astro.locals.session === null || Astro.locals.user === null) {
 	return Astro.redirect("/login");
+}
+if (!Astro.locals.user.emailVerified) {
+	return redirect(302, "/verify-email");
 }
 if (Astro.locals.session.faroeEmailUpdateRequestId === null) {
 	return Astro.redirect("/");

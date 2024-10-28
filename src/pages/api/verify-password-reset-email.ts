@@ -16,7 +16,7 @@ export async function POST(context: APIContext): Promise<Response> {
 		return new Response("Not authenticated.", { status: 400 });
 	}
 	if (session.emailVerified) {
-		return new Response("Not allowed", {
+		return new Response("Not allowed.", {
 			status: 403
 		});
 	}
