@@ -9,7 +9,7 @@ if (Astro.locals.user.emailVerified) {
 	return Astro.redirect("/");
 }
 
-let ratelimited = false;
+let rateLimited = false;
 let verificationRequest = await faroe.getUserEmailVerificationRequest(Astro.locals.user.faroeId);
 if (verificationRequest === null) {
 	try {
@@ -19,7 +19,7 @@ if (verificationRequest === null) {
 		if (!(e instanceof FaroeError) || e.code !== "TOO_MANY_REQUESTS") {
 			throw e;
 		}
-		ratelimited = true;
+		rateLimited = true;
 	}
 }
 ---
@@ -35,7 +35,7 @@ if (verificationRequest === null) {
 	<body>
 		<h1>Verify your email address</h1>
 		{
-			ratelimited ? (
+			rateLimited ? (
 				<p>Please try again later.</p>
 			) : (
 				<>
