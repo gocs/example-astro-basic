@@ -8,7 +8,12 @@ import type { APIContext } from "astro";
 export async function POST(context: APIContext): Promise<Response> {
 	if (context.locals.user === null) {
 		return new Response("Not authenticated.", {
-			status: 400
+			status: 401
+		});
+	}
+	if (!context.locals.user.emailVerified) {
+		return new Response("Not allowed.", {
+			status: 403
 		});
 	}
 

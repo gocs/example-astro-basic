@@ -13,6 +13,11 @@ export async function POST(context: APIContext): Promise<Response> {
 			status: 401
 		});
 	}
+	if (!context.locals.user.emailVerified) {
+		return new Response("Not allowed.", {
+			status: 403
+		});
+	}
 
 	const data = await context.request.json();
 	const parser = new ObjectParser(data);
