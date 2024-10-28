@@ -18,7 +18,6 @@ export async function POST(context: APIContext): Promise<Response> {
 	const parser = new ObjectParser(data);
 
 	let email: string;
-
 	try {
 		email = parser.getString("email");
 	} catch (e) {
@@ -26,6 +25,7 @@ export async function POST(context: APIContext): Promise<Response> {
 			status: 400
 		});
 	}
+	email = email.toLowerCase();
 
 	if (!verifyEmailInput(email)) {
 		return new Response("Please enter a valid email address.", {
