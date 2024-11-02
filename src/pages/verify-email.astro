@@ -1,6 +1,6 @@
 ---
-import { faroe } from "@lib/faroe";
 import { FaroeError } from "@faroe/sdk";
+import { createEmailVerificationRequestIfExpired } from "@lib/user";
 
 if (Astro.locals.user === null) {
 	return Astro.redirect("/login");
@@ -10,16 +10,13 @@ if (Astro.locals.user.emailVerified) {
 }
 
 let rateLimited = false;
-let verificationRequest = await faroe.getUserEmailVerificationRequest(Astro.locals.user.faroeId);
-if (verificationRequest === null) {
-	try {
-		verificationRequest = await faroe.createUserEmailVerificationRequest(Astro.locals.user.faroeId);
-		console.log(`To ${Astro.locals.user.email}: Your code is ${verificationRequest.code}`);
-	} catch (e) {
-		if (!(e instanceof FaroeError) || e.code !== "TOO_MANY_REQUESTS") {
-			throw e;
-		}
+try {
+	await createEmailVerificationRequestIfExpired(Astro.locals.user.faroeId, Astro.locals.user.email);
+} catch (e) {
+	if (e instanceof FaroeError && e.code === "TOO_MANY_REQUESTS") {
 		rateLimited = true;
+	} else {
+		throw e;
 	}
 }
 ---

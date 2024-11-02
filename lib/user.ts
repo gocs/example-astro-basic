@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { faroe } from "./faroe";
 
 export function verifyUsernameInput(username: string): boolean {
 	return username.length > 3 && username.length < 32 && username.trim() === username;
@@ -69,4 +70,12 @@ export interface User {
 	email: string;
 	username: string;
 	emailVerified: boolean;
+}
+
+export async function createEmailVerificationRequestIfExpired(faroeUserId: string, email: string): Promise<void> {
+	let verificationRequest = await faroe.getUserEmailVerificationRequest(faroeUserId);
+	if (verificationRequest == null) {
+		verificationRequest = await faroe.createUserEmailVerificationRequest(faroeUserId);
+		console.log(`To ${email}: Your code is ${verificationRequest.code}`);
+	}
 }
