@@ -17,7 +17,7 @@ sqlite3 sqlite.db
 Install and initialize Faroe on port 4000.
 
 ```
-./faroe serve
+go tool src serve
 ```
 
 Install dependencies and start the dev server.
