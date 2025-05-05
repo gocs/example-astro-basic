@@ -26,3 +26,4 @@ pnpm-debug.log*
 sqlite.db
 
 .vscode
+faroe_data/
