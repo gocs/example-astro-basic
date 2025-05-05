@@ -17,6 +17,7 @@ sqlite3 sqlite.db
 Install and initialize Faroe on port 4000.
 
 ```
+go mod tidy
 go tool src serve
 ```
 
